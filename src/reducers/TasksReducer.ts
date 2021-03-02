@@ -1,34 +1,84 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {TaskType} from "../Todolist";
+import {v1} from "uuid";
 
-let initialState=[
-    {id: 1, title: "HTML&CSS", isDone: true},
-    {id: 2, title: "JS", isDone: true},
-    {id: 3, title: "ReactJS", isDone: false}
+let initialState: Array<TaskType> = [
+    {id: v1(), title: "HTML&CSS", isDone: true},
+    {id: v1(), title: "JS", isDone: true},
+    {id: v1(), title: "ReactJS", isDone: false}
 ]
 
-export const TasksReducer = (state=initialState, action: deleteTaskACType) => {
+
+export const TasksReducer = (state = initialState, action: TasksTypeReducer): Array<TaskType> => {
     switch (action.type) {
         case "DELETE-TASKS": {
-            console.log('hhhhhhhhh');
             let newState = [...state];
             let filteredTasks = newState.filter(f => f.id !== action.mId);
-            return [...filteredTasks]
+            return filteredTasks
+        }
+        case 'ADD-TASK': {
+            if (action.value.trim() != '') {
+                let newState = [...state];
+                let newTask = {id: v1(), title: action.value, isDone: true};
+                return [newTask, ...newState];
+            }
+        }
+        case 'CHANGE-STATUS': {
+            let newState = [...state];
+            let changeTasks = newState.find(f => f.id === action.mId);
+            if (changeTasks) {
+                changeTasks.isDone = !changeTasks.isDone
+            }
+            return [...newState]
+        }
+        case 'FILTER-TASKS': {
+            let newState = [...state]
+            return newState
         }
         default:
             return state
     }
 
 }
-
-type deleteTaskACType={
+type TasksTypeReducer = {
     type: string,
-    mId: number
+    mId?: string
+    value: string
 }
-
-export const deleteTaskAC = (mId: number) => {
+type deleteTaskACType = {
+    type: string,
+    mId: string
+}
+type filterTaskACType = {
+    type: string,
+    value: string
+}
+type addTaskACType = {
+    type: string,
+    value: string
+}
+export const deleteTaskAC = (mId: string): deleteTaskACType => {
     return {
         type: 'DELETE-TASKS',
         mId: mId
+    }
+}
+export const changeStatusAC = (mId: string) => {
+    return {
+        type: 'CHANGE-STATUS',
+        mId: mId
+    }
+}
+export const filterTaskAC = (value: string): filterTaskACType => {
+    return {
+        type: 'FILTER-TASKS',
+        value: value
+    }
+}
+
+export const addTaskAC = (value: string): addTaskACType => {
+    return {
+        type: 'ADD-TASK',
+        value: value
     }
 }
